@@ -8,39 +8,34 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import com.moviles.practicadibujotouch.modelos.Cuadrado
 import com.moviles.practicadibujotouch.modelos.Pelota
 
 class MyCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     private val objPaint: Paint = Paint()
-    private var xStart = 0f
-    private var yStart = 0f
-    private var xEnd = 0f
-    private var yEnd = 0f
-    var figure: Shape = Shape.LINE
+
     var bitmap: Bitmap? = null
 
 //aqui va la logica
 
-    private var puntuacion = 0;
+    private var puntuacion = 0
 
     private var pelota: Pelota = Pelota(400f, 1400f, 100f, 100f, 100f)
 
     private var game = true
 
-    public var listaCuadrados: MutableList<Cuadrado> = mutableListOf(
+    var listaCuadrados: MutableList<Cuadrado> = mutableListOf(
     )
 
     private var barra = Cuadrado(500f, 1800f, 200f, 50f, Color.RED)
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
     }
 
 
-    public fun agregarCuadrado(lista: MutableList<Cuadrado>) {
-        listaCuadrados = lista;
+     fun agregarCuadrado(lista: MutableList<Cuadrado>) {
+        listaCuadrados = lista
 
     }
 
@@ -102,7 +97,7 @@ class MyCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
             MotionEvent.ACTION_DOWN -> {
                 if (!game) {
-                   restaurarPelota()
+                    restaurarPelota()
                 } else {
                     barra.x = event.x
                 }
@@ -112,9 +107,8 @@ class MyCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
             }
             MotionEvent.ACTION_MOVE -> {
-                if (!game) {
-                } else {
-                    barra.x = event.x-50
+                if (game) {
+                    barra.x = event.x - 50
                     invalidate()
                 }
 
@@ -139,12 +133,7 @@ class MyCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
         return bitmap
     }
 
-    fun moverCuadrados() {
-        for (cuadrado in listaCuadrados) {
-            cuadrado.x += 10
-        }
-        invalidate()
-    }
+
 
     private var movimientoX = 0f
     private var movimientoY = -10f
@@ -165,10 +154,20 @@ class MyCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
             }
             if (pelota.y <= 0) {
                 movimientoY = +10f
+                if (movimientoX == 0f) {
+                    val random = (-1..1).random()
+                    if (random > 0) {
+                        movimientoX = +10f
+                    } else {
+                        movimientoX = -10f
+                    }
+                }
+
+
             }
 
-            if (pelota.y + pelota.radio >= barra.y && pelota.x + pelota.radio >= barra.x && pelota.x <= barra.x + barra.lado-50) {
-                if (pelota.y + pelota.radio <= barra.y + barra.alto && pelota.x + pelota.radio <= barra.x + barra.lado) {
+            if (pelota.y + pelota.radio >= barra.y && pelota.x + pelota.radio >= barra.x && pelota.x <= barra.x + barra.lado - 50) {
+                if (pelota.y + pelota.radio <= barra.y + barra.alto && pelota.x <= barra.x + barra.lado) {
                     movimientoY = -10f
                 }
             }
@@ -181,10 +180,12 @@ class MyCanvas(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
                         porEliminar = cuadrado
                         if (pelota.y > cuadrado.y) {
                             movimientoY = 10f
-                        } else {
+                        } else if (pelota.y + pelota.radio/2 >= cuadrado.y) {
+                            movimientoY = +10f
+                        }else{
                             movimientoY = -10f
                         }
-                        if (pelota.x > cuadrado.x) {
+                        if (pelota.x+pelota.radio/2 > cuadrado.x+cuadrado.lado/2) {
                             movimientoX = 10f
                         } else {
                             movimientoX = -10f
